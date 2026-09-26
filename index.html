@@ -9,7 +9,7 @@
 <meta property="og:url" content="https://bver-rl.github.io/">
 <meta property="og:title" content="Bidirectional Voronoi-biased Exploration Curriculum for Reinforcement Learning">
 <meta property="og:description" content="An automatic curriculum that expands from both ends of the task at once: start states out of the goal, goals out of the initial distribution.">
-<meta property="og:image" content="https://bver-rl.github.io/img/paper/og.jpg">
+<meta property="og:image" content="https://bver-rl.github.io/img/paper/og.jpg?v=20260926">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 23 C 13 9, 19 23, 24 9' fill='none' stroke='%23999' stroke-width='2' stroke-dasharray='3 3'/%3E%3Ccircle cx='8' cy='23' r='6' fill='%231f74b8'/%3E%3Ccircle cx='24' cy='9' r='6' fill='%23238a5e'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -278,7 +278,7 @@
 
 <div class="wide">
   <figure class="teaser">
-    <img src="img/paper/cover.webp" width="2183" height="818" alt="Three renders. Left: a quadruped robot next to a box, with a blue tree of random walks spreading from the goal on top of the box and a green tree spreading from the robot's start on the ground. Top right: a robot arm moving a ring between two pegs with the same two trees. Bottom right: the quadruped on a scanned rocky terrain.">
+    <img src="img/paper/cover.webp?v=20260926" width="2183" height="818" alt="Three renders. Left: a quadruped robot next to a box, with a blue tree of random walks spreading from the goal on top of the box and a green tree spreading from the robot's start on the ground. Top right: a robot arm moving a ring between two pegs with the same two trees. Bottom right: the quadruped on a scanned rocky terrain.">
     <figcaption><b>BVER grows the curriculum from both ends of the task.</b> Intermediate starts <i>s<sub>i</sub></i> (<span class="c-start">blue</span>) grow from the target goal <i>g</i><sup>★</sup> and intermediate goals <i>g<sub>i</sub></i> (<span class="c-goal">green</span>) from the initial distribution <i>s</i><sub>0</sub>&nbsp;~&nbsp;<i>ρ</i><sub>0</sub>. One policy trains on both (white arrows), with sparse rewards and no demonstrations. Shown: box climbing (left), ring-on-peg transfer (top right), and a scanned terrain (bottom right).</figcaption>
   </figure>
 </div>
@@ -302,7 +302,7 @@
   </div>
   <div class="wide">
     <figure>
-      <div class="scroll-x"><img src="img/paper/mechanism.webp" width="2683" height="1059" loading="lazy" alt="Diagram of the expansion mechanism. On the left, a blue tree of random walks grows from the target goal g star; Voronoi cells are drawn around its states, and the cells at the edge of the explored region are large. On the right, a green tree grows from the initial distribution rho zero. A dashed line marks the connect step, where a random walk is seeded toward the other tree's solved states. A legend row explains frontier, solved and discarded states, seeds and candidates, and training episodes."></div>
+      <div class="scroll-x"><img src="img/paper/mechanism.webp?v=20260926" width="2683" height="1059" loading="lazy" alt="Diagram of the expansion mechanism. On the left, a blue tree of random walks grows from the target goal g star; Voronoi cells are drawn around its states, and the cells at the edge of the explored region are large. On the right, a green tree grows from the initial distribution rho zero. A dashed line marks the connect step, where a random walk is seeded toward the other tree's solved states. A legend row explains frontier, solved and discarded states, seeds and candidates, and training episodes."></div>
       <p class="scroll-hint">Scroll sideways to see the whole diagram.</p>
       <figcaption><b>BVER's expansion mechanism.</b> Intermediate starts <i>s<sub>i</sub></i> (<span class="c-start">blue</span>) grow from the target goal <i>g</i><sup>★</sup> and goals <i>g<sub>i</sub></i> (<span class="c-goal">green</span>) from the initial distribution <i>ρ</i><sub>0</sub>. Random walks start from the states nearest to uniform task-space samples, favouring states whose Voronoi cell (shaded) reaches into unexplored space, or nearest to the other direction's solved states to connect the two (dashed). Section numbers refer to the paper.</figcaption>
     </figure>
@@ -360,25 +360,25 @@
     <div class="tasks">
       <div class="dom">Point-mass navigation<span>velocity-controlled point mass</span></div>
       <div class="row mazes">
-        <figure><img src="img/paper/task_maze_u.webp" width="1200" height="1200" loading="lazy" alt="U-shaped maze"><figcaption>U-maze</figcaption></figure>
-        <figure><img src="img/paper/task_maze_serpentine.webp" width="1200" height="1200" loading="lazy" alt="Serpentine N-shaped maze"><figcaption>N-maze</figcaption></figure>
-        <figure><img src="img/paper/task_maze_scatter.webp" width="1200" height="1200" loading="lazy" alt="Large maze with scattered walls"><figcaption>Large maze</figcaption></figure>
+        <figure><img src="img/paper/task_maze_u.webp?v=20260926" width="1200" height="1200" loading="lazy" alt="U-shaped maze"><figcaption>U-maze</figcaption></figure>
+        <figure><img src="img/paper/task_maze_serpentine.webp?v=20260926" width="1200" height="1200" loading="lazy" alt="Serpentine N-shaped maze"><figcaption>N-maze</figcaption></figure>
+        <figure><img src="img/paper/task_maze_scatter.webp?v=20260926" width="1200" height="1200" loading="lazy" alt="Large maze with scattered walls"><figcaption>Large maze</figcaption></figure>
       </div>
 
       <div class="dom">Quadrupedal locomotion<span>ANYmal&nbsp;D</span></div>
       <div class="row legged">
-        <figure><img src="img/paper/task_climb_box_up.webp" width="1200" height="675" loading="lazy" alt="Quadruped on the ground in front of a box, goal on top"><figcaption>Climb box up (0.4&nbsp;m and 0.7&nbsp;m)</figcaption></figure>
-        <figure><img src="img/paper/task_climb_box_down.webp" width="1200" height="675" loading="lazy" alt="Quadruped on top of a box, goal on the ground"><figcaption>Climb box down (0.4&nbsp;m and 0.7&nbsp;m)</figcaption></figure>
-        <figure><img src="img/paper/task_dtsg.webp" width="1200" height="675" loading="lazy" alt="Terrain with pillars, stairs and a ramp leading to one goal"><figcaption>Three-route terrain</figcaption></figure>
-        <figure><img src="img/paper/task_scan_boulder_small_rocks.webp" width="1200" height="675" loading="lazy" alt="Scanned freestanding boulder"><figcaption>Freestanding boulder I</figcaption></figure>
-        <figure><img src="img/paper/task_scan_freestanding_boulder.webp" width="1200" height="675" loading="lazy" alt="Second scanned freestanding boulder"><figcaption>Freestanding boulder II</figcaption></figure>
-        <figure><img src="img/paper/task_scan_rocky_ascent.webp" width="1200" height="675" loading="lazy" alt="Scanned steep rocky slope"><figcaption>Rocky ascent</figcaption></figure>
-        <figure><img src="img/paper/task_scan_small_rocks.webp" width="1200" height="675" loading="lazy" alt="Scanned field of small stones"><figcaption>Small stone field</figcaption></figure>
+        <figure><img src="img/paper/task_climb_box_up.webp?v=20260926" width="1200" height="675" loading="lazy" alt="Quadruped on the ground in front of a box, goal on top"><figcaption>Climb box up (0.4&nbsp;m and 0.7&nbsp;m)</figcaption></figure>
+        <figure><img src="img/paper/task_climb_box_down.webp?v=20260926" width="1200" height="675" loading="lazy" alt="Quadruped on top of a box, goal on the ground"><figcaption>Climb box down (0.4&nbsp;m and 0.7&nbsp;m)</figcaption></figure>
+        <figure><img src="img/paper/task_dtsg.webp?v=20260926" width="1200" height="675" loading="lazy" alt="Terrain with pillars, stairs and a ramp leading to one goal"><figcaption>Three-route terrain</figcaption></figure>
+        <figure><img src="img/paper/task_scan_boulder_small_rocks.webp?v=20260926" width="1200" height="675" loading="lazy" alt="Scanned freestanding boulder"><figcaption>Freestanding boulder I</figcaption></figure>
+        <figure><img src="img/paper/task_scan_freestanding_boulder.webp?v=20260926" width="1200" height="675" loading="lazy" alt="Second scanned freestanding boulder"><figcaption>Freestanding boulder II</figcaption></figure>
+        <figure><img src="img/paper/task_scan_rocky_ascent.webp?v=20260926" width="1200" height="675" loading="lazy" alt="Scanned steep rocky slope"><figcaption>Rocky ascent</figcaption></figure>
+        <figure><img src="img/paper/task_scan_small_rocks.webp?v=20260926" width="1200" height="675" loading="lazy" alt="Scanned field of small stones"><figcaption>Small stone field</figcaption></figure>
       </div>
 
       <div class="dom">Manipulation<span>Franka Panda arm</span></div>
       <div class="row arm">
-        <figure><img src="img/paper/task_hanoi_p12.webp" width="1200" height="674" loading="lazy" alt="Robot arm holding a ring above two pegs"><figcaption>Ring-on-peg transfer: move a rigidly held ring from the bottom of one peg to the bottom of another</figcaption></figure>
+        <figure><img src="img/paper/task_hanoi_p12.webp?v=20260926" width="1200" height="674" loading="lazy" alt="Robot arm holding a ring above two pegs"><figcaption>Ring-on-peg transfer: move a rigidly held ring from the bottom of one peg to the bottom of another</figcaption></figure>
       </div>
     </div>
     <p style="font:13.5px/1.5 var(--sans);color:var(--ink-3);margin-top:18px;max-width:700px">In the renders, cyan marks the initial distribution, green the target goal, and the white box the task space.</p>
@@ -397,12 +397,12 @@
 
     <div class="viewer" data-viewer>
       <div class="tabs" role="tablist" aria-label="Sample efficiency plots">
-        <button role="tab" aria-selected="false" data-src="img/paper/bench_u.webp" data-note="&lt;b&gt;U-maze.&lt;/b&gt; Vanilla PPO succeeds for only a few seeds. BVER learns fastest.">U-maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/bench_n.webp" data-note="&lt;b&gt;N-maze.&lt;/b&gt; BVER learns fastest. The random curriculum plateaus at about 40% success, likely because few of its uniform samples fall into the narrow passages, and RC stays below about 35%.">N-maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/bench_large.webp" data-note="&lt;b&gt;Large maze.&lt;/b&gt; BVER learns fastest among the reference-free curricula.">Large maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/bench_ring.webp" data-note="&lt;b&gt;Ring-on-peg transfer.&lt;/b&gt; BVER exceeds 95% success in about 150 iterations, four times fewer than the random curriculum, and lies between the two reference-based methods. RC stays below about 35%: its start states spread into the free space above the pegs rather than toward the starting peg.">Ring-on-peg</button>
-        <button role="tab" aria-selected="true" data-src="img/paper/bench_cu04.webp" data-note="&lt;b&gt;Box climbing, 0.4 m.&lt;/b&gt; Backplay converges fastest, as expected with a demonstration that places its starts on a known solution. BVER learns faster than RSI and reaches 95% success in roughly 65% fewer iterations than the best reference-free baseline. RC stays below about 35%.">Box 0.4&nbsp;m</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/bench_cu07.webp" data-note="&lt;b&gt;Box climbing, 0.7 m.&lt;/b&gt; BVER is the only reference-free curriculum that learns the task, reaching about 90% success after 4000 iterations. With a demonstration, RSI and Backplay solve it in about 1600. The task needs two skills, walking and climbing, and the bidirectional expansion may help by training both at the same time.">Box 0.7&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_u.webp?v=20260926" data-note="&lt;b&gt;U-maze.&lt;/b&gt; Vanilla PPO succeeds for only a few seeds. BVER learns fastest.">U-maze</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_n.webp?v=20260926" data-note="&lt;b&gt;N-maze.&lt;/b&gt; BVER learns fastest. The random curriculum plateaus at about 40% success, likely because few of its uniform samples fall into the narrow passages, and RC stays below about 35%.">N-maze</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_large.webp?v=20260926" data-note="&lt;b&gt;Large maze.&lt;/b&gt; BVER learns fastest among the reference-free curricula.">Large maze</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_ring.webp?v=20260926" data-note="&lt;b&gt;Ring-on-peg transfer.&lt;/b&gt; BVER exceeds 95% success in about 150 iterations, four times fewer than the random curriculum, and lies between the two reference-based methods. RC stays below about 35%: its start states spread into the free space above the pegs rather than toward the starting peg.">Ring-on-peg</button>
+        <button role="tab" aria-selected="true" data-src="img/paper/bench_cu04.webp?v=20260926" data-note="&lt;b&gt;Box climbing, 0.4 m.&lt;/b&gt; Backplay converges fastest, as expected with a demonstration that places its starts on a known solution. BVER learns faster than RSI and reaches 95% success in roughly 65% fewer iterations than the best reference-free baseline. RC stays below about 35%.">Box 0.4&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_cu07.webp?v=20260926" data-note="&lt;b&gt;Box climbing, 0.7 m.&lt;/b&gt; BVER is the only reference-free curriculum that learns the task, reaching about 90% success after 4000 iterations. With a demonstration, RSI and Backplay solve it in about 1600. The task needs two skills, walking and climbing, and the bidirectional expansion may help by training both at the same time.">Box 0.7&nbsp;m</button>
       </div>
       <ul class="plot-legend" aria-label="Legend">
         <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--ppo)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--ppo)"/></svg>Vanilla PPO</li>
@@ -412,14 +412,14 @@
         <li><svg width="26" height="14" aria-hidden="true"><line x1="0" y1="7" x2="26" y2="7" stroke="var(--rsi)" stroke-width="2" stroke-dasharray="2 2"/><text x="13" y="11.5" text-anchor="middle" font-size="13" fill="var(--rsi)">★</text></svg>RSI</li>
         <li><svg width="26" height="14" aria-hidden="true"><line x1="0" y1="7" x2="26" y2="7" stroke="var(--backplay)" stroke-width="2" stroke-dasharray="2 2"/><text x="13" y="11.5" text-anchor="middle" font-size="13" fill="var(--backplay)">★</text></svg>Backplay</li>
       </ul>
-      <div class="frame" style="aspect-ratio: 1694 / 954"><img src="img/paper/bench_cu04.webp" width="1400" height="788" alt="Success rate over learning iterations for each method on the selected task."></div>
+      <div class="frame" style="aspect-ratio: 1694 / 954"><img src="img/paper/bench_cu04.webp?v=20260926" width="1400" height="788" alt="Success rate over learning iterations for each method on the selected task."></div>
       <p class="note" aria-live="polite"></p>
     </div>
   </div>
   <div class="wide">
     <div class="split narrow-fig">
       <figure>
-        <img src="img/paper/robustness.webp" width="1100" height="1031" loading="lazy" alt="Radar chart for box climbing on the 0.4 m box with four axes: start heading robustness, start state robustness, goal robustness, and sample efficiency. BVER's polygon is by far the largest on the three robustness axes; Backplay is best on sample efficiency.">
+        <img src="img/paper/robustness.webp?v=20260926" width="1100" height="1031" loading="lazy" alt="Radar chart for box climbing on the 0.4 m box with four axes: start heading robustness, start state robustness, goal robustness, and sample efficiency. BVER's polygon is by far the largest on the three robustness axes; Backplay is best on sample efficiency.">
       </figure>
       <div>
         <h3>Robustness on box climbing</h3>
@@ -445,7 +445,7 @@
         <p>Vanilla PPO only learns the ramp, the easiest of the three: every successful episode detours to it, even from in front of the stairs or the pillars. BVER's policy crosses all three: the stairs in 64% of successful episodes, the pillars in 21% and the ramp in 15%.</p>
       </div>
       <figure>
-        <img src="img/paper/paths.webp" width="1300" height="1652" loading="lazy" alt="Top-down view of successful trajectories on the three-route terrain. Top, BVER: the trajectories split into three bundles, over the pillars, over the stairs in the middle, and over the ramp. Bottom, vanilla PPO: every trajectory detours to the ramp.">
+        <img src="img/paper/paths.webp?v=20260926" width="1300" height="1652" loading="lazy" alt="Top-down view of successful trajectories on the three-route terrain. Top, BVER: the trajectories split into three bundles, over the pillars, over the stairs in the middle, and over the ramp. Bottom, vanilla PPO: every trajectory detours to the ramp.">
       </figure>
     </div>
   </div>
@@ -456,20 +456,20 @@
     <table class="res">
       <thead><tr><th class="th-img" aria-label="Render"></th><th>Terrain</th><th class="num">Vanilla PPO</th><th class="num">BVER</th></tr></thead>
       <tbody>
-        <tr><td class="thumb"><img src="img/paper/task_scan_boulder_small_rocks.webp" width="1200" height="675" loading="lazy" alt=""></td><th scope="row">Freestanding boulder I</th><td class="num zero">0.0%</td><td class="num">91.0% <span class="pm">± 1.7</span></td></tr>
-        <tr><td class="thumb"><img src="img/paper/task_scan_freestanding_boulder.webp" width="1200" height="675" loading="lazy" alt=""></td><th scope="row">Freestanding boulder II</th><td class="num zero">0.0%</td><td class="num">84.4% <span class="pm">± 2.1</span></td></tr>
-        <tr><td class="thumb"><img src="img/paper/task_scan_rocky_ascent.webp" width="1200" height="675" loading="lazy" alt=""></td><th scope="row">Rocky ascent</th><td class="num zero">0.0%</td><td class="num">77.2% <span class="pm">± 2.2</span></td></tr>
-        <tr><td class="thumb"><img src="img/paper/task_scan_small_rocks.webp" width="1200" height="675" loading="lazy" alt=""></td><th scope="row">Small stone field</th><td class="num zero">0.0%</td><td class="num">59.8% <span class="pm">± 4.4</span></td></tr>
+        <tr><td class="thumb"><img src="img/paper/task_scan_boulder_small_rocks.webp?v=20260926" width="1200" height="675" loading="lazy" alt=""></td><th scope="row">Freestanding boulder I</th><td class="num zero">0.0%</td><td class="num">91.0% <span class="pm">± 1.7</span></td></tr>
+        <tr><td class="thumb"><img src="img/paper/task_scan_freestanding_boulder.webp?v=20260926" width="1200" height="675" loading="lazy" alt=""></td><th scope="row">Freestanding boulder II</th><td class="num zero">0.0%</td><td class="num">84.4% <span class="pm">± 2.1</span></td></tr>
+        <tr><td class="thumb"><img src="img/paper/task_scan_rocky_ascent.webp?v=20260926" width="1200" height="675" loading="lazy" alt=""></td><th scope="row">Rocky ascent</th><td class="num zero">0.0%</td><td class="num">77.2% <span class="pm">± 2.2</span></td></tr>
+        <tr><td class="thumb"><img src="img/paper/task_scan_small_rocks.webp?v=20260926" width="1200" height="675" loading="lazy" alt=""></td><th scope="row">Small stone field</th><td class="num zero">0.0%</td><td class="num">59.8% <span class="pm">± 4.4</span></td></tr>
       </tbody>
     </table>
   </div>
   <div class="wide">
     <figure class="scrub">
       <div class="stack">
-        <img class="on" src="img/paper/ra_150.webp" width="1400" height="507" alt="Rocky ascent at iteration 150: starts and goals clustered at their roots.">
-        <img src="img/paper/ra_500.webp" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 500.">
-        <img src="img/paper/ra_1000.webp" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 1000.">
-        <img src="img/paper/ra_2000.webp" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 2000: starts and goals spread over the reachable terrain.">
+        <img class="on" src="img/paper/ra_150.webp?v=20260926" width="1400" height="507" alt="Rocky ascent at iteration 150: starts and goals clustered at their roots.">
+        <img src="img/paper/ra_500.webp?v=20260926" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 500.">
+        <img src="img/paper/ra_1000.webp?v=20260926" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 1000.">
+        <img src="img/paper/ra_2000.webp?v=20260926" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 2000: starts and goals spread over the reachable terrain.">
       </div>
       <div class="ctl">
         <label for="raRange">Training progress</label>
@@ -507,18 +507,18 @@
     <div class="viewer" data-viewer>
       <div class="tabs" role="tablist" aria-label="Ablation plots">
         <span class="grp">Expansion direction</span>
-        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_u.webp" data-note="&lt;b&gt;U-maze.&lt;/b&gt; Iterations to 75%: BVER 160, forwards only 380, backwards only 440.">U-maze</button>
-        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_n.webp" data-note="&lt;b&gt;N-maze.&lt;/b&gt; Iterations to 75%: BVER 800, forwards only 1100; backwards only never gets there.">N-maze</button>
-        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_large.webp" data-note="&lt;b&gt;Large maze.&lt;/b&gt; Iterations to 75%: BVER 140, forwards only 440, backwards only 400. The single directions cover the maze uniformly, whereas BVER focuses on the region between start and goal.">Large maze</button>
-        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_ring.webp" data-note="&lt;b&gt;Ring-on-peg transfer.&lt;/b&gt; BVER reaches 75% after 120 iterations; neither direction alone gets there.">Ring-on-peg</button>
-        <button role="tab" aria-selected="true" data-legend="dir" data-src="img/paper/dir_cu04.webp" data-note="&lt;b&gt;Climb up, 0.4 m box.&lt;/b&gt; Iterations to 75%: BVER 600, forwards only 800, backwards only 800.">Up 0.4&nbsp;m</button>
-        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_cu07.webp" data-note="&lt;b&gt;Climb up, 0.7 m box.&lt;/b&gt; BVER and backwards only both reach 75% after 3800 iterations; forwards only, which starts on the ground, never does.">Up 0.7&nbsp;m</button>
-        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_cd04.webp" data-note="&lt;b&gt;Climb down, 0.4 m box.&lt;/b&gt; Iterations to 75%: BVER 300, forwards only 400, backwards only 1700.">Down 0.4&nbsp;m</button>
-        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_cd07.webp" data-note="&lt;b&gt;Climb down, 0.7 m box.&lt;/b&gt; Iterations to 75%: BVER 400, forwards only 600, backwards only 2800, seven times more than BVER.">Down 0.7&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_u.webp?v=20260926" data-note="&lt;b&gt;U-maze.&lt;/b&gt; Iterations to 75%: BVER 160, forwards only 380, backwards only 440.">U-maze</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_n.webp?v=20260926" data-note="&lt;b&gt;N-maze.&lt;/b&gt; Iterations to 75%: BVER 800, forwards only 1100; backwards only never gets there.">N-maze</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_large.webp?v=20260926" data-note="&lt;b&gt;Large maze.&lt;/b&gt; Iterations to 75%: BVER 140, forwards only 440, backwards only 400. The single directions cover the maze uniformly, whereas BVER focuses on the region between start and goal.">Large maze</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_ring.webp?v=20260926" data-note="&lt;b&gt;Ring-on-peg transfer.&lt;/b&gt; BVER reaches 75% after 120 iterations; neither direction alone gets there.">Ring-on-peg</button>
+        <button role="tab" aria-selected="true" data-legend="dir" data-src="img/paper/dir_cu04.webp?v=20260926" data-note="&lt;b&gt;Climb up, 0.4 m box.&lt;/b&gt; Iterations to 75%: BVER 600, forwards only 800, backwards only 800.">Up 0.4&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_cu07.webp?v=20260926" data-note="&lt;b&gt;Climb up, 0.7 m box.&lt;/b&gt; BVER and backwards only both reach 75% after 3800 iterations; forwards only, which starts on the ground, never does.">Up 0.7&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_cd04.webp?v=20260926" data-note="&lt;b&gt;Climb down, 0.4 m box.&lt;/b&gt; Iterations to 75%: BVER 300, forwards only 400, backwards only 1700.">Down 0.4&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_cd07.webp?v=20260926" data-note="&lt;b&gt;Climb down, 0.7 m box.&lt;/b&gt; Iterations to 75%: BVER 400, forwards only 600, backwards only 2800, seven times more than BVER.">Down 0.7&nbsp;m</button>
         <span class="grp">Connect ratio</span>
-        <button role="tab" aria-selected="false" data-legend="connect" data-src="img/paper/connect_u.webp" data-note="&lt;b&gt;U-maze.&lt;/b&gt; Iterations to 75%: 160 with &lt;i&gt;p&lt;/i&gt;&lt;sub&gt;connect&lt;/sub&gt; = 0.5, 340 with 0, 260 with 1.">U-maze</button>
-        <button role="tab" aria-selected="false" data-legend="connect" data-src="img/paper/connect_n.webp" data-note="&lt;b&gt;N-maze.&lt;/b&gt; Iterations to 75%: 800 with &lt;i&gt;p&lt;/i&gt;&lt;sub&gt;connect&lt;/sub&gt; = 0.5, 1000 with 0, 1500 with 1.">N-maze</button>
-        <button role="tab" aria-selected="false" data-legend="connect" data-src="img/paper/connect_large.webp" data-note="&lt;b&gt;Large maze.&lt;/b&gt; Iterations to 75%: 140 with &lt;i&gt;p&lt;/i&gt;&lt;sub&gt;connect&lt;/sub&gt; = 0.5, 200 with 0, 240 with 1.">Large maze</button>
+        <button role="tab" aria-selected="false" data-legend="connect" data-src="img/paper/connect_u.webp?v=20260926" data-note="&lt;b&gt;U-maze.&lt;/b&gt; Iterations to 75%: 160 with &lt;i&gt;p&lt;/i&gt;&lt;sub&gt;connect&lt;/sub&gt; = 0.5, 340 with 0, 260 with 1.">U-maze</button>
+        <button role="tab" aria-selected="false" data-legend="connect" data-src="img/paper/connect_n.webp?v=20260926" data-note="&lt;b&gt;N-maze.&lt;/b&gt; Iterations to 75%: 800 with &lt;i&gt;p&lt;/i&gt;&lt;sub&gt;connect&lt;/sub&gt; = 0.5, 1000 with 0, 1500 with 1.">N-maze</button>
+        <button role="tab" aria-selected="false" data-legend="connect" data-src="img/paper/connect_large.webp?v=20260926" data-note="&lt;b&gt;Large maze.&lt;/b&gt; Iterations to 75%: 140 with &lt;i&gt;p&lt;/i&gt;&lt;sub&gt;connect&lt;/sub&gt; = 0.5, 200 with 0, 240 with 1.">Large maze</button>
       </div>
       <ul class="plot-legend" data-legend-id="dir" aria-label="Legend">
         <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--bver)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--bver)"/></svg>BVER</li>
@@ -532,7 +532,7 @@
         <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--abl-b)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--abl-b)"/></svg><span><i>p</i><sub>connect</sub>&nbsp;=&nbsp;1</span></li>
         <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="#7f7f7f" stroke-width="3" stroke-dasharray="3 4"/></svg>75% success</li>
       </ul>
-      <div class="frame" style="aspect-ratio: 1694 / 936"><img src="img/paper/dir_cu04.webp" width="1400" height="774" loading="lazy" alt="Success rate over learning iterations for the selected ablation."></div>
+      <div class="frame" style="aspect-ratio: 1694 / 936"><img src="img/paper/dir_cu04.webp?v=20260926" width="1400" height="774" loading="lazy" alt="Success rate over learning iterations for the selected ablation."></div>
       <p class="note" aria-live="polite"></p>
     </div>
   </div>
