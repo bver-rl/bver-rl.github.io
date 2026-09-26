@@ -1,6 +1,6 @@
 <html lang="en" data-theme="light">
 <meta charset="utf-8">
-<title>Bidirectional incremental Voronoi-biased Exploration curriculum for Reinforcement learning</title>
+<title>BVER: Bidirectional Voronoi-biased Exploration Curriculum for Reinforcement Learning</title>
 <style>
   :root, :root[data-theme="dark"] {
     --bg:#0b1013; --bg-raised:#121a1e; --bg-sunken:#080d0f;
@@ -241,10 +241,10 @@
 
   /* ---- Compiled LaTeX algorithm figures ---- */
   .algo-wrap { max-width: 940px; margin: 0 auto; }
-  /* Compiled LaTeX algorithm figures (img/alg_*.svg, built from the alg_*.tex siblings).
-     The SVGs are black glyphs and rules on a transparent ground, with #008080 comments. Inverting
-     and rotating the hue 180deg lifts the text to white against this page's dark ground and carries
-     the teal through as a brighter teal, while transparent pixels stay transparent -- so no light
+  /* Compiled LaTeX algorithm figures (img/alg_*.svg, typeset from the paper's algorithm sources).
+     The SVGs are black glyphs and rules on a transparent ground, with grey comments. Inverting
+     and rotating the hue 180deg lifts the text to white against this page's dark ground and keeps
+     the comments grey, while transparent pixels stay transparent -- so no light
      card is needed and the LaTeX typesetting is untouched. Natural width is 435pt (~580px); the
      cap below renders them at about 1.5x so the body type sits near the page's own size. */
   .alg-fig { margin: 0 0 28px; padding: 0; overflow-x: auto; }
@@ -264,7 +264,7 @@
 
 <header class="top">
   <a class="home-link" href="./">&larr; Paper overview</a>
-  <h1>BVER: Bidirectional incremental Voronoi-biased Exploration curriculum for Reinforcement learning</h1>
+  <h1>BVER: Bidirectional Voronoi-biased Exploration Curriculum for Reinforcement Learning</h1>
   <div class="tabs">
     <button class="tab-btn active" data-view="explain">Explain</button>
     <button class="tab-btn" data-view="compare">Compare</button>
@@ -438,8 +438,8 @@
   <!-- ============================== ALGORITHM VIEW ============================== -->
   <div class="view" id="view-algorithm">
     <div class="algo-wrap">
-      <figure class="alg-fig" data-file="img/alg_training_loop.svg">
-        <img src="img/alg_training_loop.svg" alt="Algorithm 1 — Bidirectional frontier training loop" onerror="this.parentElement.classList.add('missing')">
+      <figure class="alg-fig" data-file="img/alg_bver_overview.svg">
+        <img src="img/alg_bver_overview.svg" alt="Algorithm 1 — BVER (equation numbers refer to the paper)" onerror="this.parentElement.classList.add('missing')">
       </figure>
       <figure class="alg-fig" data-file="img/alg_random_walk.svg">
         <img src="img/alg_random_walk.svg" alt="Algorithm 2 — Random walk frontier expansion" onerror="this.parentElement.classList.add('missing')">
@@ -448,13 +448,13 @@
         <img src="img/alg_threshold.svg" alt="Algorithm 3 — Return-based thresholding of rollouts into frontier and solved buffers" onerror="this.parentElement.classList.add('missing')">
       </figure>
       <figure class="alg-fig" data-file="img/alg_mix.svg">
-        <img src="img/alg_mix.svg" alt="Algorithm 4 — Rebuild of the intermediate set from frontier and solved buffers" onerror="this.parentElement.classList.add('missing')">
+        <img src="img/alg_mix.svg" alt="Algorithm 4 — Rebuild of the mixed set from frontier and solved buffers" onerror="this.parentElement.classList.add('missing')">
       </figure>
     </div>
   </div>
 </main>
 
-<div class="footer-credit">Bidirectional Reachability Expansion Curriculum · 2D explainer</div>
+<div class="footer-credit">BVER · 2D explainer</div>
 
 <script>
 "use strict";

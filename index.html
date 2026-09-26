@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BVER: Bidirectional Voronoi-biased Curriculum for RL</title>
+<title>Bidirectional Voronoi-biased Exploration Curriculum for Reinforcement Learning</title>
 <meta name="description" content="BVER is an automatic start–goal curriculum for sparse-reward, long-horizon goal-conditioned reinforcement learning. It grows start states out of the goal and goals out of the initial state distribution, biased toward unexplored task space and toward each other.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://bver-rl.github.io/">
-<meta property="og:title" content="BVER: Bidirectional Incremental Voronoi-biased Exploration Curriculum for Reinforcement Learning">
+<meta property="og:title" content="Bidirectional Voronoi-biased Exploration Curriculum for Reinforcement Learning">
 <meta property="og:description" content="An automatic curriculum that expands from both ends of the task at once: start states out of the goal, goals out of the initial distribution.">
 <meta property="og:image" content="https://bver-rl.github.io/img/paper/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -33,6 +33,9 @@
     --backplay: #2b7700;
     --rc: #6b6b6b;
     --ppo: #0200ff;
+    --random: #cc005e;
+    --abl-a: #b200d0;   /* forwards only, and p_connect = 0 */
+    --abl-b: #ee00d3;   /* backwards only, and p_connect = 1 */
     --serif: "Source Serif 4", "Iowan Old Style", Charter, Georgia, serif;
     --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -130,7 +133,8 @@
   .algo .i1 .cm { padding-left: 2.6em; }
   .algo .i2 .cm { padding-left: 3.9em; }
   .algo .kw { font-weight: 600; }
-  .algo .fn { font-variant: small-caps; letter-spacing: .02em; }
+  .algo .fn, .fn-inline { font-variant: small-caps; letter-spacing: .02em; }
+  .algo .algo-note { font: 13px/1.5 var(--sans); color: var(--ink-3); padding: 10px 16px 0; border-top: 1px solid var(--rule-2); margin-top: 10px; }
 
   /* ---------- task grid ---------- */
   .tasks { display: grid; grid-template-columns: 170px 1fr; gap: 26px 26px; margin-top: 30px; }
@@ -165,6 +169,10 @@
   .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 500; }
   .viewer .frame { aspect-ratio: 1190 / 680; margin-top: 18px; }
   .viewer .frame img { width: 100%; height: 100%; object-fit: contain; }
+  .plot-legend { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 4px 20px; font: 13.5px/1.5 var(--sans); color: var(--ink-2); }
+  .plot-legend[hidden] { display: none; }
+  .plot-legend li { display: flex; align-items: center; gap: 7px; }
+  .plot-legend svg { flex: none; }
   .viewer .note { font: 15px/1.55 var(--sans); color: var(--ink-2); margin: 10px 0 0; min-height: 3.1em; }
   .viewer .note b { color: var(--ink); font-weight: 600; }
 
@@ -193,6 +201,15 @@
   table.res .pm { color: var(--ink-3); font-size: 13px; }
   table.res .zero { color: var(--ink-3); }
 
+  .scroll-table { overflow-x: auto; max-width: 900px; margin: 26px auto 0; -webkit-overflow-scrolling: touch; }
+  table.abl { min-width: 640px; font-size: 14px; }
+  table.abl caption { caption-side: top; text-align: left; font: 13.5px/1.5 var(--sans); color: var(--ink-2); padding-bottom: 8px; }
+  table.abl th, table.abl td { padding: 7px 8px; }
+  table.abl thead th { font-size: 12.5px; white-space: nowrap; }
+  table.abl th[scope="row"] { white-space: nowrap; }
+  table.abl tr.grp-end td, table.abl tr.grp-end th { border-bottom-color: var(--rule-2); }
+  table.abl .na { color: var(--ink-3); }
+  table.abl b { font-weight: 600; }
   .scrub { max-width: 880px; margin: 34px auto 0; }
   .scrub .stack { position: relative; aspect-ratio: 1400 / 507; }
   .scrub .stack img { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .25s ease; }
@@ -248,8 +265,8 @@
 
 <header class="head">
   <div class="col">
-    <p class="venue">Under review as a conference paper at ICLR 2027</p>
-    <h1><b>BVER</b>: <b>B</b>idirectional Incremental <b>V</b>oronoi-biased <b>E</b>xploration Curriculum for <b>R</b>einforcement Learning</h1>
+    <p class="venue">BVER &middot; under review as a conference paper at ICLR 2027</p>
+    <h1><b>B</b>idirectional <b>V</b>oronoi-biased <b>E</b>xploration Curriculum for <b>R</b>einforcement Learning</h1>
     <p class="dek">A curriculum for sparse-reward, long-horizon tasks that grows start states outward from the goal and goals outward from the start at the same time, and steers the two toward each other.</p>
     <p class="authors">Anonymous authors &middot; paper under double-blind review</p>
     <div class="links">
@@ -262,7 +279,7 @@
 <div class="wide">
   <figure class="teaser">
     <img src="img/paper/cover.webp" width="2183" height="818" alt="Three renders. Left: a quadruped robot next to a box, with a blue tree of random walks spreading from the goal on top of the box and a green tree spreading from the robot's start on the ground. Top right: a robot arm moving a ring between two pegs with the same two trees. Bottom right: the quadruped on a scanned rocky terrain.">
-    <figcaption><b>BVER grows the curriculum from both ends of the task at once.</b> Random walks expand intermediate start states <i>s<sub>i</sub></i> (<span class="c-start">blue</span>) outward from the target goal <i>g</i><sup>★</sup> and intermediate goals <i>g<sub>i</sub></i> (<span class="c-goal">green</span>) outward from the initial distribution <i>s</i><sub>0</sub>&nbsp;~&nbsp;<i>ρ</i><sub>0</sub>. One shared policy trains on episodes of both kinds (white arrows), with sparse rewards and no demonstrations. Shown: quadrupedal box climbing, ring-on-peg transfer, and a scanned terrain.</figcaption>
+    <figcaption><b>BVER grows the curriculum from both ends of the task.</b> Intermediate starts <i>s<sub>i</sub></i> (<span class="c-start">blue</span>) grow from the target goal <i>g</i><sup>★</sup> and intermediate goals <i>g<sub>i</sub></i> (<span class="c-goal">green</span>) from the initial distribution <i>s</i><sub>0</sub>&nbsp;~&nbsp;<i>ρ</i><sub>0</sub>. One policy trains on both (white arrows), with sparse rewards and no demonstrations. Shown: box climbing (left), ring-on-peg transfer (top right), and a scanned terrain (bottom right).</figcaption>
   </figure>
 </div>
 
@@ -271,7 +288,7 @@
     <p class="lede">Give a reinforcement learning agent a long task and a reward only at the very end, and it will almost never see that reward. A quadruped that is rewarded for standing on top of a box, but not for anything on the way there, has no signal to learn from.</p>
     <p>In legged locomotion and manipulation this is usually worked around with reference motions, hand-designed curricula, or shaped rewards. Each of these needs a demonstration or engineering that is specific to one task. Automatic curricula avoid that by generating easier intermediate tasks during training, but existing methods grow from one side only: they propose goals for a fixed start, or start states for a fixed goal. The frontier then has to cover the whole distance to the other end by itself.</p>
     <p>BVER takes two ideas from sampling-based motion planning. RRT extends the tree node closest to a uniform random sample, which pushes growth into large unexplored regions (the <em>Voronoi bias</em>). RRT-Connect grows one tree from the start and one from the goal until they meet. BVER applies both to curriculum generation: it grows intermediate start states out of the goal and intermediate goals out of the initial state distribution, biases both toward unexplored parts of the task space, pulls them toward each other, and trains a single goal-conditioned policy on both kinds of episode.</p>
-    <p>We test it with sparse rewards on thirteen simulated tasks: point-mass mazes, quadrupedal locomotion with ANYmal&nbsp;D, and ring-on-peg transfer with a Franka arm. Without a curriculum, PPO rarely or never solves them. BVER converges faster than the other reference-free curricula on every task except the simplest maze. On box climbing it reaches 95% success in about 65% fewer iterations than the best of them, and the resulting policy keeps working when the start, the goal, or the initial heading is changed.</p>
+    <p>We test it on thirteen simulated tasks: point-mass mazes, quadrupedal locomotion with ANYmal&nbsp;D, and ring-on-peg transfer with a Franka arm. The rewards are sparse on all of them except one terrain built to compare routes, which adds a shaping term. Without a curriculum, PPO rarely or never solves them. BVER learns faster than all the reference-free curricula we compare against, on every task. On box climbing it reaches 95% success on a 0.4&nbsp;m box in about 65% fewer iterations than the best of them, is the only one of them that learns to climb a 0.7&nbsp;m box, and yields a policy that keeps working when the start, the goal, or the initial heading changes. Without a demonstration, it comes close to the sample efficiency of the reference-based curricula on the 0.4&nbsp;m box and on ring-on-peg transfer.</p>
   </div>
 </section>
 
@@ -285,45 +302,47 @@
   </div>
   <div class="wide">
     <figure>
-      <div class="scroll-x"><img src="img/paper/mechanism.webp" width="2683" height="776" loading="lazy" alt="Diagram of the expansion mechanism. On the left, a green tree of random walks grows from the initial distribution rho zero. On the right, a blue tree grows from the target goal g star. Voronoi cells around the blue states are drawn; the cells at the edge of the explored region are large. A dashed line marks the connect step, where a random walk is seeded toward the other tree's solved states."></div>
+      <div class="scroll-x"><img src="img/paper/mechanism.webp" width="2683" height="1059" loading="lazy" alt="Diagram of the expansion mechanism. On the left, a blue tree of random walks grows from the target goal g star; Voronoi cells are drawn around its states, and the cells at the edge of the explored region are large. On the right, a green tree grows from the initial distribution rho zero. A dashed line marks the connect step, where a random walk is seeded toward the other tree's solved states. A legend row explains frontier, solved and discarded states, seeds and candidates, and training episodes."></div>
       <p class="scroll-hint">Scroll sideways to see the whole diagram.</p>
-      <figcaption>The backwards expansion (<span class="c-start">blue</span>) grows intermediate starts <i>s<sub>i</sub></i> out of the target goal <i>g</i><sup>★</sup>; the forwards expansion (<span class="c-goal">green</span>) grows intermediate goals <i>g<sub>i</sub></i> out of <i>ρ</i><sub>0</sub>. Each random walk is seeded at the state nearest to a uniform sample of the task space <i>𝒯</i>, so states whose Voronoi cell (shaded) reaches into unexplored space are picked most often. With probability <i>p</i><sub>connect</sub> the sample comes from the other direction's solved states instead (dashed line).</figcaption>
+      <figcaption><b>BVER's expansion mechanism.</b> Intermediate starts <i>s<sub>i</sub></i> (<span class="c-start">blue</span>) grow from the target goal <i>g</i><sup>★</sup> and goals <i>g<sub>i</sub></i> (<span class="c-goal">green</span>) from the initial distribution <i>ρ</i><sub>0</sub>. Random walks start from the states nearest to uniform task-space samples, favouring states whose Voronoi cell (shaded) reaches into unexplored space, or nearest to the other direction's solved states to connect the two (dashed). Section numbers refer to the paper.</figcaption>
     </figure>
   </div>
   <div class="col">
     <dl class="steps">
       <dt>Backwards expansion</dt>
-      <dd>As in reverse curriculum generation (RC), training starts from states found by simulating random actions from a known goal state. After each iteration, every start state is scored by the normalised return <i>R</i> of its rollout. States with <i>R</i>&nbsp;≤&nbsp;<i>R</i><sub>min</sub> are too hard for now and are dropped. States with <i>R</i><sub>min</sub>&nbsp;&lt;&nbsp;<i>R</i>&nbsp;&lt;&nbsp;<i>R</i><sub>max</sub> form the <em>frontier</em>, and states with <i>R</i>&nbsp;≥&nbsp;<i>R</i><sub>max</sub> are <em>solved</em>. Frontier and solved states are mixed at a fixed ratio, so the training set holds mostly tasks that are neither too hard nor too easy.</dd>
+      <dd>As in reverse curriculum generation (RC), training starts from states found by simulating random actions from a known goal state. After each iteration, every start state is scored by the normalised return <i>R</i> of its rollout, the fraction of the episode spent at the goal. States with <i>R</i>&nbsp;≤&nbsp;<i>R</i><sub>min</sub> are too hard for now and are dropped. States with <i>R</i><sub>min</sub>&nbsp;&lt;&nbsp;<i>R</i>&nbsp;&lt;&nbsp;<i>R</i><sub>max</sub> form the <em>frontier</em>, and states with <i>R</i>&nbsp;≥&nbsp;<i>R</i><sub>max</sub> are <em>solved</em>. Frontier and solved states are mixed at a fixed ratio, so the training set holds mostly tasks of intermediate difficulty.</dd>
 
       <dt>Voronoi-biased seeding</dt>
-      <dd>To pick where the next random walks start, BVER samples points uniformly from the task space <i>𝒯</i> and takes the nearest neighbour of each sample in the mixed set. A state is then chosen with probability proportional to the volume of its Voronoi cell. That volume is largest at the edge of the explored region, so the expansion moves outward, toward the initial distribution, instead of refining what it already covers. Each walk then takes <i>T</i><sub>B</sub> random actions, and the states along the walk become the next candidates.</dd>
+      <dd>To pick where the next random walks start, BVER samples points uniformly from the task space <i>𝒯</i> and takes the nearest neighbour of each sample in the mixed set. A state is then chosen with probability proportional to the volume of its Voronoi cell. That volume is largest at the edge of the explored region, so the expansion moves outward, toward the initial distribution, instead of refining what it already covers. Each walk then takes <i>T</i><sub>B</sub> random actions, <i>a<sub>t</sub></i>&nbsp;~&nbsp;𝒩(0,&nbsp;Σ), and <i>N</i><sub>s</sub> states subsampled along it become new candidates.</dd>
 
       <dt>Forwards expansion</dt>
-      <dd>The same mechanism runs with start and goal swapped. The policy starts from <i>s</i><sub>0</sub>&nbsp;~&nbsp;<i>ρ</i><sub>0</sub> and is commanded to intermediate goals <i>g<sub>i</sub></i> on the forwards frontier. Here the walks are seeded in states the policy can <em>reach</em>, so the forwards sets store the final state of each rollout, which ends within the goal tolerance when the goal was reached and held.</dd>
+      <dd>The same mechanism runs with start and goal swapped. The policy starts from <i>s</i><sub>0</sub>&nbsp;~&nbsp;<i>ρ</i><sub>0</sub> and is commanded to intermediate goals <i>g<sub>i</sub></i> on the forwards frontier. Here the walks are seeded in states the policy can <em>reach</em>. Because a walk has to be reset to a full simulator state, the forwards sets store the final state of each rollout, sorted by the return of its commanded goal. A rollout that reached and held its goal ends within the goal tolerance of it.</dd>
 
       <dt>Connecting the two frontiers</dt>
-      <dd>Following RRT-Connect, some of the uniform samples are replaced by samples from the other direction's solved set. Intermediate goals then grow toward states from which <i>g</i><sup>★</sup> is already reachable, and intermediate starts grow toward <i>ρ</i><sub>0</sub>. The connect ratio <i>p</i><sub>connect</sub> balances this against coverage; we use 0.5 unless stated otherwise.</dd>
+      <dd>Following RRT-Connect, some of the seeding samples are drawn from the other direction's solved set instead of from <i>𝒯</i>: with probability <i>p</i><sub>connect</sub> from the solved set, otherwise uniformly from the task space. Intermediate goals then grow toward states from which <i>g</i><sup>★</sup> is already reachable, and intermediate starts grow toward <i>ρ</i><sub>0</sub>. The connect ratio balances this against coverage; <i>p</i><sub>connect</sub>&nbsp;=&nbsp;0.5 in all experiments.</dd>
 
       <dt>One policy for both directions</dt>
-      <dd>A single goal-conditioned PPO policy <i>π<sub>θ</sub></i>(<i>a</i>&nbsp;|&nbsp;<i>s</i>,&nbsp;<i>g</i>) is trained on (<i>s</i><sub>0</sub>,&nbsp;<i>g<sub>i</sub></i>) and (<i>s<sub>i</sub></i>,&nbsp;<i>g</i><sup>★</sup>) episodes, with the budget split evenly. Part of the parallel environments explore the new random-walk states; the rest keep training on the mixed set, which also replays solved states against forgetting.</dd>
+      <dd>A single goal-conditioned PPO policy <i>π<sub>θ</sub></i>(<i>a</i>&nbsp;|&nbsp;<i>s</i>,&nbsp;<i>g</i>) is trained on (<i>s</i><sub>0</sub>,&nbsp;<i>g<sub>i</sub></i>) and (<i>s<sub>i</sub></i>,&nbsp;<i>g</i><sup>★</sup>) episodes, with the budget split evenly between the two expansions. <i>N</i><sub>explore</sub> environments train on the new random-walk states, and <i>N</i><sub>exploit</sub> environments keep training on the mixed set, which also replays solved states against forgetting. Exploitation is optional: on the mazes and ring-on-peg transfer, <i>N</i><sub>exploit</sub>&nbsp;=&nbsp;0 and the mixed set only seeds the random walks.</dd>
     </dl>
 
-    <div class="algo" role="figure" aria-label="BVER pseudocode overview">
-      <div class="cap">Algorithm 1 <span>BVER, overview (full pseudocode in the paper's appendix)</span></div>
-      <div class="req"><span class="kw">Require:</span> initial distribution <i>ρ</i><sub>0</sub>, target goal <i>g</i><sup>★</sup>, task space <i>𝒯</i>, goal-conditioned policy <i>π</i></div>
+    <div class="algo" role="figure" aria-label="Algorithm 1, BVER">
+      <div class="cap">Algorithm 1 <span>BVER (subroutines in Appendix A.1 of the paper)</span></div>
+      <div class="req"><span class="kw">Require:</span> initial distribution <i>ρ</i><sub>0</sub>, target goal <i>g</i><sup>★</sup> with goal state <i>s<sup>g</sup></i>, task space <i>𝒯</i>, goal-conditioned policy <i>π</i>, environment split <i>N</i><sub>explore</sub>, <i>N</i><sub>exploit</sub></div>
       <ol>
-        <li><span><i>ℐ</i><sup>fwd</sup> ← {<i>s</i><sub>0</sub> ~ <i>ρ</i><sub>0</sub>}, &nbsp;<i>ℐ</i><sup>bwd</sup> ← {<i>s<sup>g</sup></i>}; &nbsp;<i>C<sup>d</sup></i>, <i>F<sup>d</sup></i>, <i>S<sup>d</sup></i> ← ∅</span><span class="cm">▹ mixed, candidate, frontier, solved sets</span></li>
+        <li><span><i>ℐ</i><sup>fwd</sup> ← {<i>s</i><sub>0</sub> ~ <i>ρ</i><sub>0</sub>}, &nbsp;<i>ℐ</i><sup>bwd</sup> ← {<i>s<sup>g</sup></i>}; &nbsp;<i>C<sup>d</sup></i>, <i>F<sup>d</sup></i>, <i>S<sup>d</sup></i> ← ∅ for <i>d</i> ∈ {fwd, bwd}</span></li>
         <li><span><span class="kw">for</span> each iteration <span class="kw">do</span></span></li>
-        <li class="i1"><span><span class="kw">for</span> <i>d</i> ∈ {fwd, bwd}, with <i>d̄</i> the opposite direction <span class="kw">do</span></span></li>
-        <li class="i2"><span><i>C<sup>d</sup></i> ← <span class="fn">RandomWalk</span>(<i>ℐ<sup>d</sup></i>, <i>𝒯</i>, <i>S<sup>d̄</sup></i>, <i>p</i><sub>connect</sub>)</span><span class="cm">▹ seeds: nearest neighbours of samples from <i>S<sup>d̄</sup></i> or <i>𝒯</i></span></li>
-        <li class="i2"><span><i>D<sup>d</sup></i> ← <span class="fn">Rollout</span>(<i>π</i>, <i>C<sup>d</sup></i>) ∪ <span class="fn">Rollout</span>(<i>π</i>, <i>ℐ<sup>d</sup></i>)</span><span class="cm">▹ explore <i>C<sup>d</sup></i>, exploit <i>ℐ<sup>d</sup></i></span></li>
-        <li class="i2"><span><i>F<sup>d</sup></i>, <i>S<sup>d</sup></i> ← <span class="fn">Threshold</span>(<i>D<sup>d</sup></i>, <i>R</i><sub>min</sub>, <i>R</i><sub>max</sub>)</span><span class="cm">▹ frontier: <i>R</i><sub>min</sub> &lt; <i>R</i> &lt; <i>R</i><sub>max</sub>, solved: <i>R</i> ≥ <i>R</i><sub>max</sub></span></li>
-        <li class="i2"><span><i>ℐ<sup>d</sup></i> ← <span class="fn">Mix</span>(<i>F<sup>d</sup></i>, <i>S<sup>d</sup></i>, <i>ν</i>)</span><span class="cm">▹ replay a fraction <i>ν</i> of solved states</span></li>
+        <li class="i1"><span><span class="kw">for</span> (<i>d</i>, <i>d̄</i>) ∈ {(fwd, bwd), (bwd, fwd)} <span class="kw">do</span></span><span class="cm">▹ environments split according to Eq. 4</span></li>
+        <li class="i2"><span><i>C<sup>d</sup></i> ← <i>C<sup>d</sup></i> ∪ <span class="fn">RandomWalk</span>(<i>ℐ<sup>d</sup></i>, <i>𝒯</i>, <i>S<sup>d̄</sup></i>)</span><span class="cm">▹ seeds from Eq. 6; <i>C<sup>d</sup></i> holds at most <i>M</i><sub>C</sub> states</span></li>
+        <li class="i2"><span><i>D<sup>d</sup></i> ← <span class="fn">Rollout</span>(<i>π</i>, <i>C<sup>d</sup></i>, <i>d</i>, <i>N</i><sub>explore</sub>/2)</span><span class="cm">▹ explore: (<i>s</i><sub>0</sub> ~ <i>ρ</i><sub>0</sub>, <i>φ</i>(·)) if fwd, (·, <i>g</i><sup>★</sup>) if bwd</span></li>
+        <li class="i2"><span><i>D<sup>d</sup></i> ← <i>D<sup>d</sup></i> ∪ <span class="fn">Rollout</span>(<i>π</i>, <i>ℐ<sup>d</sup></i>, <i>d</i>, <i>N</i><sub>exploit</sub>/2)</span><span class="cm">▹ exploit</span></li>
+        <li class="i2"><span><i>F<sup>d</sup></i>, <i>S<sup>d</sup></i> ← <span class="fn">Threshold</span>(<i>D<sup>d</sup></i>, <i>F<sup>d</sup></i>, <i>S<sup>d</sup></i>, <i>d</i>)</span><span class="cm">▹ append; threshold according to Eq. 5</span></li>
+        <li class="i2"><span><i>ℐ<sup>d</sup></i> ← <span class="fn">Mix</span>(<i>F<sup>d</sup></i>, <i>S<sup>d</sup></i>)</span><span class="cm">▹ replay a fraction <i>ν</i> of solved states</span></li>
         <li class="i1"><span><i>π</i> ← <span class="fn">Train</span>(<i>π</i>, <i>D</i><sup>fwd</sup> ∪ <i>D</i><sup>bwd</sup>)</span><span class="cm">▹ one shared policy update</span></li>
       </ol>
+      <div class="algo-note">Equation numbers refer to the paper: Eq. 4 is the even mixture of the two directions, Eq. 5 the frontier and solved sets, Eq. 6 the connect sampling.</div>
     </div>
 
-    <p class="aside">The <a href="demo.html">interactive demo</a> runs this loop on a small 2D grid world. You can draw your own maze, step through one iteration phase by phase, and race forward-only, backward-only and bidirectional expansion against each other.</p>
+    <p class="aside">The <a href="demo.html">interactive demo</a> runs this loop on a small 2D grid world. You can draw your own maze, step through one iteration phase by phase, and race forward-only, backward-only and bidirectional expansion against each other. Its Pseudocode tab shows the subroutines <span class="fn-inline">RandomWalk</span>, <span class="fn-inline">Threshold</span> and <span class="fn-inline">Mix</span> as typeset in the paper.</p>
 
     <p><b>What BVER assumes.</b> Like RC, it needs a simulator that can be reset to arbitrary states and stepped with random actions, samples from the initial distribution, one known state that achieves the goal, and a bounded task space that contains the target task and can be sampled uniformly.</p>
   </div>
@@ -334,8 +353,8 @@
 <section id="tasks">
   <div class="col">
     <h2><span class="n">02</span> Tasks</h2>
-    <p class="h2-title">Thirteen tasks in three domains, all with sparse rewards</p>
-    <p>Everything runs in Isaac Lab and is trained with PPO. The reward is +1 while the goal is within a fixed tolerance and 0 otherwise, with no shaping terms unless noted. The task space is a box in (<i>x</i>,&nbsp;<i>y</i>,&nbsp;<i>z</i>) around the base of the robot or the ring. Curves show the mean over five seeds with the standard error shaded.</p>
+    <p class="h2-title">Thirteen tasks in three domains</p>
+    <p>Everything runs in Isaac Lab and is trained with PPO. The reward is sparse: +1 in every step at which the goal is within a fixed tolerance, and 0 otherwise. The one exception is the three-route terrain, which adds a shaping term (see <a href="#coverage">training coverage</a>). The task space is a box in position space, (<i>x</i>,&nbsp;<i>y</i>) or (<i>x</i>,&nbsp;<i>y</i>,&nbsp;<i>z</i>), around the point mass, the robot base or the ring. Curves show the mean success rate over five seeds with the standard error shaded.</p>
   </div>
   <div class="wide">
     <div class="tasks">
@@ -374,30 +393,38 @@
     <p class="h2-title">Faster than the other reference-free curricula, and more robust</p>
 
     <h3>Sample efficiency</h3>
-    <p>We compare against PPO without a curriculum and a <em>random curriculum</em> that samples starts and goals uniformly from the free task space. The comparison also includes reverse curriculum generation (RC) and two methods that need a demonstration, reference state initialisation (RSI) and Backplay, marked with ★ in the plots. Only the reward band, the random-walk length and the environment split are tuned per domain.</p>
+    <p>On every task we compare against PPO without a curriculum (vanilla PPO), a <em>random curriculum</em> that samples starts and goals uniformly from the free task space, and reverse curriculum generation (RC). On ring-on-peg transfer and box climbing we also compare against two methods that need a demonstration, reference state initialisation (RSI) and Backplay, marked with ★. Their demonstrations are rollouts of policies trained with BVER. All methods use the same number of environments and simulation steps per iteration. Of BVER's hyperparameters, <i>p</i><sub>connect</sub> and <i>N</i><sub>s</sub> are shared by all tasks; the others are set per domain.</p>
 
     <div class="viewer" data-viewer>
       <div class="tabs" role="tablist" aria-label="Sample efficiency plots">
-        <button role="tab" aria-selected="true" data-src="img/paper/41_up_clean_comp.webp" data-note="&lt;b&gt;Box climbing, 0.4 m.&lt;/b&gt; Vanilla PPO never succeeds. Backplay, which needs a demonstration, converges fastest. Among reference-free curricula BVER is fastest and reaches 95% success in about 65% fewer iterations than the best of them. It also overtakes RSI, which uses a demonstration.">Box 0.4&nbsp;m</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/72_up_clean_comp.webp" data-note="&lt;b&gt;Box climbing, 0.7 m.&lt;/b&gt; The same comparison on the taller box.">Box 0.7&nbsp;m</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/u_maze_bench.webp" data-note="&lt;b&gt;U-maze.&lt;/b&gt; The path is short, and the random curriculum converges slightly faster than BVER. This is the only task where BVER is not the fastest reference-free curriculum.">U-maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/N_maze_bench.webp" data-note="&lt;b&gt;N-maze.&lt;/b&gt; The optimal path covers only a small part of the free space, and here BVER converges faster than the random curriculum.">N-maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/large_maze_bench.webp" data-note="&lt;b&gt;Large maze.&lt;/b&gt; As in the N-maze, BVER converges faster than the random curriculum.">Large maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/hanoi_bench.webp" data-note="&lt;b&gt;Ring-on-peg transfer.&lt;/b&gt; BVER first reaches 100% success in roughly half the iterations the random curriculum needs.">Ring-on-peg</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_u.webp" data-note="&lt;b&gt;U-maze.&lt;/b&gt; Vanilla PPO succeeds for only a few seeds. BVER learns fastest.">U-maze</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_n.webp" data-note="&lt;b&gt;N-maze.&lt;/b&gt; BVER learns fastest. The random curriculum plateaus at about 40% success, likely because few of its uniform samples fall into the narrow passages, and RC stays below about 35%.">N-maze</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_large.webp" data-note="&lt;b&gt;Large maze.&lt;/b&gt; BVER learns fastest among the reference-free curricula.">Large maze</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_ring.webp" data-note="&lt;b&gt;Ring-on-peg transfer.&lt;/b&gt; BVER exceeds 95% success in about 150 iterations, four times fewer than the random curriculum, and lies between the two reference-based methods. RC stays below about 35%: its start states spread into the free space above the pegs rather than toward the starting peg.">Ring-on-peg</button>
+        <button role="tab" aria-selected="true" data-src="img/paper/bench_cu04.webp" data-note="&lt;b&gt;Box climbing, 0.4 m.&lt;/b&gt; Backplay converges fastest, as expected with a demonstration that places its starts on a known solution. BVER learns faster than RSI and reaches 95% success in roughly 65% fewer iterations than the best reference-free baseline. RC stays below about 35%.">Box 0.4&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-src="img/paper/bench_cu07.webp" data-note="&lt;b&gt;Box climbing, 0.7 m.&lt;/b&gt; BVER is the only reference-free curriculum that learns the task, reaching about 90% success after 4000 iterations. With a demonstration, RSI and Backplay solve it in about 1600. The task needs two skills, walking and climbing, and the bidirectional expansion may help by training both at the same time.">Box 0.7&nbsp;m</button>
       </div>
-      <div class="frame"><img src="img/paper/41_up_clean_comp.webp" width="2040" height="1020" alt="Success rate over learning iterations for each method on the selected task."></div>
+      <ul class="plot-legend" aria-label="Legend">
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--ppo)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--ppo)"/></svg>Vanilla PPO</li>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--random)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--random)"/></svg>Random curriculum</li>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--rc)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--rc)"/></svg>Reverse curriculum</li>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--bver)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--bver)"/></svg>BVER</li>
+        <li><svg width="26" height="14" aria-hidden="true"><line x1="0" y1="7" x2="26" y2="7" stroke="var(--rsi)" stroke-width="2" stroke-dasharray="2 2"/><text x="13" y="11.5" text-anchor="middle" font-size="13" fill="var(--rsi)">★</text></svg>RSI</li>
+        <li><svg width="26" height="14" aria-hidden="true"><line x1="0" y1="7" x2="26" y2="7" stroke="var(--backplay)" stroke-width="2" stroke-dasharray="2 2"/><text x="13" y="11.5" text-anchor="middle" font-size="13" fill="var(--backplay)">★</text></svg>Backplay</li>
+      </ul>
+      <div class="frame" style="aspect-ratio: 1694 / 954"><img src="img/paper/bench_cu04.webp" width="1400" height="788" alt="Success rate over learning iterations for each method on the selected task."></div>
       <p class="note" aria-live="polite"></p>
     </div>
   </div>
   <div class="wide">
     <div class="split narrow-fig">
       <figure>
-        <img src="img/paper/robustness.webp" width="1261" height="1022" loading="lazy" alt="Radar chart with four axes: start heading robustness, start state robustness, goal robustness, and sample efficiency. BVER's polygon is by far the largest on the three robustness axes; Backplay is best on sample efficiency.">
+        <img src="img/paper/robustness.webp" width="1100" height="1031" loading="lazy" alt="Radar chart for box climbing on the 0.4 m box with four axes: start heading robustness, start state robustness, goal robustness, and sample efficiency. BVER's polygon is by far the largest on the three robustness axes; Backplay is best on sample efficiency.">
       </figure>
       <div>
         <h3>Robustness on box climbing</h3>
-        <p>The box-climbing policies are evaluated under three kinds of variation: perturbed initial yaw, start positions away from the initial distribution (goal fixed at <i>g</i><sup>★</sup>), and goals away from the target (start from <i>ρ</i><sub>0</sub>). The fourth axis shows sample efficiency as time to 90% success.</p>
-        <p>BVER's policy solves the task under all three variations. RSI, Backplay and RC train along a single demonstration or a single backwards frontier, so they only cover a narrow band of starts and goals.</p>
+        <p>We evaluate the policies trained to climb the 0.4&nbsp;m box under three variations: initial yaw perturbed by up to ±90°, start positions sampled uniformly from the task space (goal fixed at <i>g</i><sup>★</sup>), and goal positions sampled uniformly from the task space (start from <i>ρ</i><sub>0</sub>). BVER's policy keeps a high success rate under all three.</p>
+        <p>RSI and Backplay train on states near the reference trajectory and see few states outside it, which likely explains their lower robustness. RC varies only the start states and always trains on the target goal, so its lower goal robustness is expected. The fourth axis is sample efficiency, measured as time to 90% success relative to the fastest run over all methods and seeds (Backplay, 300 iterations).</p>
         <ul class="legend" aria-label="Legend">
           <li><svg width="22" height="10" aria-hidden="true"><line x1="0" y1="5" x2="22" y2="5" stroke="var(--bver)" stroke-width="2"/><circle cx="11" cy="5" r="3.5" fill="var(--bver)"/></svg>BVER</li>
           <li><svg width="22" height="10" aria-hidden="true"><line x1="0" y1="5" x2="22" y2="5" stroke="var(--rc)" stroke-width="2"/><circle cx="11" cy="5" r="3.5" fill="var(--rc)"/></svg>Reverse curriculum</li>
@@ -409,22 +436,23 @@
     </div>
   </div>
 
-  <div class="wide">
+  <div class="wide" id="coverage">
     <div class="split">
       <div>
-        <h3>Path diversity</h3>
-        <p>This terrain has three different routes to one goal: stairs in the middle, pillars on one side, a ramp on the other. The initial distribution spans the full width, so each route is the closest one for about a third of the starts.</p>
-        <p>Here we add a potential-based shaping term so that vanilla PPO finds a solution at all; BVER's reward band still uses only the sparse term. Vanilla PPO collapses onto the ramp from every start. BVER's policy uses all three routes: 64% of successful episodes take the stairs, 21% the pillars and 15% the ramp. We attribute this to the coverage-driven expansion, which keeps the curriculum active across the whole task space.</p>
+        <h3>Training coverage: three routes to one goal</h3>
+        <p>Because BVER biases its expansion toward unexplored task space, it should train the policy on the whole terrain rather than only on the easiest way to the goal. This terrain puts three different obstacles between the start and the goal: stairs in the middle, pillars on one side and a ramp on the other. The initial distribution spans the full width, so each obstacle is the closest one for about a third of the starts.</p>
+        <p>Only on this task we add a dense shaping term that rewards progress toward the goal, so that vanilla PPO finds a solution at all. Both methods get the same reward, and BVER's reward band still uses only the sparse term. We roll out each policy in 128 episodes (one seed) and record which obstacle each successful episode crosses.</p>
+        <p>Vanilla PPO only learns the ramp, the easiest of the three: every successful episode detours to it, even from in front of the stairs or the pillars. BVER's policy crosses all three: the stairs in 64% of successful episodes, the pillars in 21% and the ramp in 15%.</p>
       </div>
       <figure>
-        <img src="img/paper/paths.webp" width="1401" height="1751" loading="lazy" alt="Top-down trajectories on the three-route terrain. Top, BVER: trajectories split into three bundles, pillars 21 percent, stairs 64 percent, ramp 15 percent. Bottom, vanilla PPO: every trajectory takes the ramp.">
+        <img src="img/paper/paths.webp" width="1300" height="1652" loading="lazy" alt="Top-down view of successful trajectories on the three-route terrain. Top, BVER: the trajectories split into three bundles, over the pillars, over the stairs in the middle, and over the ramp. Bottom, vanilla PPO: every trajectory detours to the ramp.">
       </figure>
     </div>
   </div>
 
   <div class="col">
     <h3>Terrains scanned from real environments</h3>
-    <p>The same setup as box climbing, with the same PPO hyperparameters and reward band, on four scanned terrains: two freestanding boulders, a steep rocky slope, and a field of small stones. The task space only roughly covers each terrain, and the connect step is turned off because it did not help in preliminary runs. Numbers are final success rates, mean ± standard error over five seeds, after 3000 iterations (5000 on the rocky ascent).</p>
+    <p>Box climbing has a single, simple obstacle. To test whether its hyperparameters carry over to more complex geometry, we run BVER on four terrains scanned from real environments: two freestanding boulders, a steep rocky slope, and a field of small stones. All PPO and BVER hyperparameters are reused from box climbing without retuning. Only the task space, chosen to roughly cover each terrain, the episode length (10 to 12&nbsp;s instead of 4&nbsp;s) and the number of iterations (3000, or 5000 on the rocky ascent) change, and the number of environments is halved for training speed at the same exploit-to-explore ratio. Vanilla PPO does not succeed a single time on any of the four, even with a higher entropy coefficient. Numbers are final success rates, mean ± standard error over five seeds.</p>
     <table class="res">
       <thead><tr><th class="th-img" aria-label="Render"></th><th>Terrain</th><th class="num">Vanilla PPO</th><th class="num">BVER</th></tr></thead>
       <tbody>
@@ -441,39 +469,70 @@
         <img class="on" src="img/paper/ra_150.webp" width="1400" height="507" alt="Rocky ascent at iteration 150: starts and goals clustered at their roots.">
         <img src="img/paper/ra_500.webp" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 500.">
         <img src="img/paper/ra_1000.webp" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 1000.">
-        <img src="img/paper/ra_2000.webp" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 2000: starts and goals spread over the whole terrain.">
+        <img src="img/paper/ra_2000.webp" width="1400" height="507" loading="lazy" alt="Rocky ascent at iteration 2000: starts and goals spread over the reachable terrain.">
       </div>
       <div class="ctl">
         <label for="raRange">Training progress</label>
         <input id="raRange" type="range" min="0" max="3" step="1" value="0" aria-valuetext="iteration 150">
         <output for="raRange" id="raOut">iteration 150</output>
       </div>
-      <figcaption>Explored regions on the rocky ascent over training. Dark blue dots are intermediate goals (forwards expansion), orange dots intermediate starts (backwards expansion), cyan is the initial distribution, and the black box is the task space. The sets start at their roots and spread over the whole terrain as the policy improves. The task space is much larger than the area the robot can reach, yet the random walks find a path without prior knowledge of the terrain.</figcaption>
+      <figcaption>Explored regions on the rocky ascent over training. Dark blue dots are intermediate goals (forwards expansion), orange dots intermediate starts (backwards expansion), cyan is the initial distribution, and the black box is the task space. The sets start at their roots and spread over the reachable terrain as the policy improves. The task space is much larger than the reachable area, yet the random walks find a path to the goal without prior knowledge of the terrain, and the starts and goals cover the terrain rather than a single path.</figcaption>
     </figure>
   </div>
 
   <div class="col">
     <h3>Ablations</h3>
-    <p><b>Expansion direction.</b> We run forwards and backwards expansion on their own and compare them to the bidirectional version. On box climbing, both directions together are best for both box heights, going up and going down. Of the two single directions, the one that starts on top of the box does better, likely because gravity makes random walks down the edge more likely than walks up it. In the U-maze all variants converge; in the N-maze and large maze the bidirectional version is faster. In ring-on-peg transfer, each single direction spreads from its own peg into the space between but does not reliably reach the other peg; only the combination gets to 100%.</p>
-    <p><b>Connect ratio.</b> On the three mazes, drawing part of the seeding samples from the other direction's solved set (<i>p</i><sub>connect</sub> = 0.5 or 1) improves sample efficiency over uniform samples only (<i>p</i><sub>connect</sub> = 0). The two nonzero settings perform about the same.</p>
+    <p><b>Expansion direction.</b> We run forwards and backwards expansion on their own, each with the full environment budget. The bidirectional version reaches 75% success first on every task, tied only with the backwards expansion when climbing up the 0.7&nbsp;m box, while each single direction fails to reach 75% on two of the eight tasks. Which single direction works depends on the task. On box climbing, the expansion that starts on top of the box is clearly stronger, likely because gravity lets random walks cross the box edge downwards more easily than upwards: at 0.7&nbsp;m, the expansion from the ground never reaches 75% when climbing up and needs seven times more iterations than BVER when climbing down. On ring-on-peg transfer neither direction alone reaches 75%; each spreads from its own peg into the space between but rarely reaches the other. In the mazes, BVER needs 1.4 to 2.9 times fewer iterations than the better single direction. Combining both directions removes the need to know in advance which one suits a task.</p>
+    <p><b>Connect ratio.</b> On the three mazes, we compare the default <i>p</i><sub>connect</sub>&nbsp;=&nbsp;0.5 with seeding only from uniform task-space samples (<i>p</i><sub>connect</sub>&nbsp;=&nbsp;0, no connect) and only from the other direction's solved set (<i>p</i><sub>connect</sub>&nbsp;=&nbsp;1, greedy). Both extremes are slower on all three mazes. Without connecting, the two frontiers spread evenly over the task space and likely take longer to meet, needing up to 2.1 times more iterations to 75% success. Greedy connecting loses the coverage bias and needs up to 1.9 times more, most visibly in the N-maze, whose walls block the direct way toward the other frontier.</p>
 
+  </div>
+  <div class="wide">
+    <div class="scroll-table">
+      <table class="res abl">
+        <caption>Iterations until the mean success rate over five seeds reaches 75% (lower is better; ∞: not reached; n/a: not evaluated)</caption>
+        <thead>
+          <tr><th></th><th class="num">U-maze</th><th class="num">N-maze</th><th class="num">Large maze</th><th class="num">Ring-on-peg</th><th class="num">Up 0.4&nbsp;m</th><th class="num">Up 0.7&nbsp;m</th><th class="num">Down 0.4&nbsp;m</th><th class="num">Down 0.7&nbsp;m</th></tr>
+        </thead>
+        <tbody>
+          <tr class="ours"><th scope="row">BVER</th><td class="num"><b>160</b></td><td class="num"><b>800</b></td><td class="num"><b>140</b></td><td class="num"><b>120</b></td><td class="num"><b>600</b></td><td class="num"><b>3800</b></td><td class="num"><b>300</b></td><td class="num"><b>400</b></td></tr>
+          <tr><th scope="row">Forwards only</th><td class="num">380</td><td class="num">1100</td><td class="num">440</td><td class="num">∞</td><td class="num">800</td><td class="num">∞</td><td class="num">400</td><td class="num">600</td></tr>
+          <tr class="grp-end"><th scope="row">Backwards only</th><td class="num">440</td><td class="num">∞</td><td class="num">400</td><td class="num">∞</td><td class="num">800</td><td class="num"><b>3800</b></td><td class="num">1700</td><td class="num">2800</td></tr>
+          <tr><th scope="row">No connect (<i>p</i><sub>connect</sub>&nbsp;=&nbsp;0)</th><td class="num">340</td><td class="num">1000</td><td class="num">200</td><td class="num na">n/a</td><td class="num na">n/a</td><td class="num na">n/a</td><td class="num na">n/a</td><td class="num na">n/a</td></tr>
+          <tr><th scope="row">Greedy (<i>p</i><sub>connect</sub>&nbsp;=&nbsp;1)</th><td class="num">260</td><td class="num">1500</td><td class="num">240</td><td class="num na">n/a</td><td class="num na">n/a</td><td class="num na">n/a</td><td class="num na">n/a</td><td class="num na">n/a</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col">
     <div class="viewer" data-viewer>
       <div class="tabs" role="tablist" aria-label="Ablation plots">
-        <span class="grp">Expansion direction: box climbing, mazes, ring-on-peg</span>
-        <button role="tab" aria-selected="true" data-src="img/paper/41_up_ours.webp" data-note="&lt;b&gt;0.4 m box, up.&lt;/b&gt;">0.4&nbsp;m up</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/72_up_ours.webp" data-note="&lt;b&gt;0.7 m box, up.&lt;/b&gt;">0.7&nbsp;m up</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/41_down_ours.webp" data-note="&lt;b&gt;0.4 m box, down.&lt;/b&gt;">0.4&nbsp;m down</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/72_down_ours.webp" data-note="&lt;b&gt;0.7 m box, down.&lt;/b&gt;">0.7&nbsp;m down</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/u_maze_abl_dir.webp" data-note="&lt;b&gt;U-maze.&lt;/b&gt; All variants converge.">U-maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/N_maze_abl_dir.webp" data-note="&lt;b&gt;N-maze.&lt;/b&gt;">N-maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/large_maze_abl_dir.webp" data-note="&lt;b&gt;Large maze.&lt;/b&gt;">Large maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/hanoi_abl_dir.webp" data-note="&lt;b&gt;Ring-on-peg transfer.&lt;/b&gt; Only the bidirectional version reaches 100%.">Ring-on-peg</button>
+        <span class="grp">Expansion direction</span>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_u.webp" data-note="&lt;b&gt;U-maze.&lt;/b&gt; Iterations to 75%: BVER 160, forwards only 380, backwards only 440.">U-maze</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_n.webp" data-note="&lt;b&gt;N-maze.&lt;/b&gt; Iterations to 75%: BVER 800, forwards only 1100; backwards only never gets there.">N-maze</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_large.webp" data-note="&lt;b&gt;Large maze.&lt;/b&gt; Iterations to 75%: BVER 140, forwards only 440, backwards only 400. The single directions cover the maze uniformly, whereas BVER focuses on the region between start and goal.">Large maze</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_ring.webp" data-note="&lt;b&gt;Ring-on-peg transfer.&lt;/b&gt; BVER reaches 75% after 120 iterations; neither direction alone gets there.">Ring-on-peg</button>
+        <button role="tab" aria-selected="true" data-legend="dir" data-src="img/paper/dir_cu04.webp" data-note="&lt;b&gt;Climb up, 0.4 m box.&lt;/b&gt; Iterations to 75%: BVER 600, forwards only 800, backwards only 800.">Up 0.4&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_cu07.webp" data-note="&lt;b&gt;Climb up, 0.7 m box.&lt;/b&gt; BVER and backwards only both reach 75% after 3800 iterations; forwards only, which starts on the ground, never does.">Up 0.7&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_cd04.webp" data-note="&lt;b&gt;Climb down, 0.4 m box.&lt;/b&gt; Iterations to 75%: BVER 300, forwards only 400, backwards only 1700.">Down 0.4&nbsp;m</button>
+        <button role="tab" aria-selected="false" data-legend="dir" data-src="img/paper/dir_cd07.webp" data-note="&lt;b&gt;Climb down, 0.7 m box.&lt;/b&gt; Iterations to 75%: BVER 400, forwards only 600, backwards only 2800, seven times more than BVER.">Down 0.7&nbsp;m</button>
         <span class="grp">Connect ratio</span>
-        <button role="tab" aria-selected="false" data-src="img/paper/u_maze_abl_connect.webp" data-note="&lt;b&gt;U-maze,&lt;/b&gt; connect ratio 0, 0.5 and 1.">U-maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/N_maze_abl_connect.webp" data-note="&lt;b&gt;N-maze,&lt;/b&gt; connect ratio 0, 0.5 and 1.">N-maze</button>
-        <button role="tab" aria-selected="false" data-src="img/paper/large_maze_abl_connect.webp" data-note="&lt;b&gt;Large maze,&lt;/b&gt; connect ratio 0, 0.5 and 1.">Large maze</button>
+        <button role="tab" aria-selected="false" data-legend="connect" data-src="img/paper/connect_u.webp" data-note="&lt;b&gt;U-maze.&lt;/b&gt; Iterations to 75%: 160 with &lt;i&gt;p&lt;/i&gt;&lt;sub&gt;connect&lt;/sub&gt; = 0.5, 340 with 0, 260 with 1.">U-maze</button>
+        <button role="tab" aria-selected="false" data-legend="connect" data-src="img/paper/connect_n.webp" data-note="&lt;b&gt;N-maze.&lt;/b&gt; Iterations to 75%: 800 with &lt;i&gt;p&lt;/i&gt;&lt;sub&gt;connect&lt;/sub&gt; = 0.5, 1000 with 0, 1500 with 1.">N-maze</button>
+        <button role="tab" aria-selected="false" data-legend="connect" data-src="img/paper/connect_large.webp" data-note="&lt;b&gt;Large maze.&lt;/b&gt; Iterations to 75%: 140 with &lt;i&gt;p&lt;/i&gt;&lt;sub&gt;connect&lt;/sub&gt; = 0.5, 200 with 0, 240 with 1.">Large maze</button>
       </div>
-      <div class="frame"><img src="img/paper/41_up_ours.webp" width="1190" height="680" loading="lazy" alt="Success rate over learning iterations for the selected ablation."></div>
+      <ul class="plot-legend" data-legend-id="dir" aria-label="Legend">
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--bver)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--bver)"/></svg>BVER</li>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--abl-a)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--abl-a)"/></svg>Forwards only</li>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--abl-b)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--abl-b)"/></svg>Backwards only</li>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="#7f7f7f" stroke-width="3" stroke-dasharray="3 4"/></svg>75% success</li>
+      </ul>
+      <ul class="plot-legend" data-legend-id="connect" aria-label="Legend" hidden>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--abl-a)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--abl-a)"/></svg><span><i>p</i><sub>connect</sub>&nbsp;=&nbsp;0</span></li>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--bver)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--bver)"/></svg><span><i>p</i><sub>connect</sub>&nbsp;=&nbsp;0.5 (BVER)</span></li>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="var(--abl-b)" stroke-width="2"/><circle cx="13" cy="6" r="3.5" fill="var(--abl-b)"/></svg><span><i>p</i><sub>connect</sub>&nbsp;=&nbsp;1</span></li>
+        <li><svg width="26" height="12" aria-hidden="true"><line x1="0" y1="6" x2="26" y2="6" stroke="#7f7f7f" stroke-width="3" stroke-dasharray="3 4"/></svg>75% success</li>
+      </ul>
+      <div class="frame" style="aspect-ratio: 1694 / 936"><img src="img/paper/dir_cu04.webp" width="1400" height="774" loading="lazy" alt="Success rate over learning iterations for the selected ablation."></div>
       <p class="note" aria-live="polite"></p>
     </div>
   </div>
@@ -484,9 +543,10 @@
 <section id="limitations">
   <div class="col">
     <h2><span class="n">04</span> Limitations</h2>
-    <p class="h2-title">What BVER needs, and what we have not tested</p>
-    <p>BVER needs a simulator that can be reset to arbitrary states, random-action rollouts, and a bounded task space with a meaningful distance. All task spaces here are two- or three-dimensional position boxes with a Euclidean metric, the regime where RRT-style expansion is known to work well. Higher-dimensional or non-Euclidean task spaces are untested; learned distances could help there.</p>
-    <p>The backwards expansion also assumes roughly reversible dynamics. A random walk from the goal reaching a state does not mean the goal can be reached from that state, as gravity on the box edge shows. Such states are only dropped once a rollout has shown them to be unsolvable. Learned dynamics models or rollouts of the current policy could replace the random walks. Finally, all results are in simulation; running the policies on hardware is future work.</p>
+    <p class="h2-title">What BVER needs, what it costs, and what we have not tested</p>
+    <p>The random walks run in the same parallel simulator as the policy rollouts and add about 28% to the wall-clock training time in our experiments.</p>
+    <p>BVER needs a simulator that can be reset to arbitrary states, random-action rollouts, and a bounded task space with a meaningful distance metric. All task spaces here are two- or three-dimensional position boxes with a Euclidean metric. Higher-dimensional or non-Euclidean task spaces are untested; learned distances could help there.</p>
+    <p>Like RC, the backwards expansion also assumes roughly reversible dynamics. A random walk from the goal reaching a state does not mean the goal can be reached from that state, as gravity on the box edge shows. Such states are only dropped once a rollout has shown them to be unsolvable. Learned dynamics models or rollouts of the current policy could replace the random walks. Finally, all results are in simulation; running the policies on hardware is future work.</p>
   </div>
 </section>
 
@@ -499,8 +559,8 @@
     <div class="cite">
       <button type="button" id="copyBib">Copy</button>
 <pre id="bib">@misc{bver2026,
-  title  = {{BVER}: Bidirectional Incremental Voronoi-biased
-            Exploration Curriculum for Reinforcement Learning},
+  title  = {Bidirectional {V}oronoi-biased Exploration Curriculum
+            for Reinforcement Learning},
   author = {Anonymous},
   year   = {2026},
   note   = {Under review at ICLR 2027}
@@ -530,6 +590,10 @@
       });
       img.src = tab.dataset.src;
       note.innerHTML = tab.dataset.note || "";
+      // Viewers mixing two figures carry one legend per figure; show the selected tab's.
+      if (tab.dataset.legend) {
+        viewer.querySelectorAll("[data-legend-id]").forEach((l) => { l.hidden = l.dataset.legendId !== tab.dataset.legend; });
+      }
       if (focus) tab.focus();
     }
     tabs.forEach((tab, i) => {
