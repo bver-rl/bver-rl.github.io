@@ -96,6 +96,16 @@
   .scroll-hint { display: none; font: 12.5px var(--sans); color: var(--ink-3); margin-top: 6px; }
   @media (max-width: 880px) { .scroll-hint { display: block; } }
 
+  /* ---------- videos ---------- */
+  section.videos { padding: 4px 0 6px; }
+  .clips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 18px; }
+  .clip { margin: 0; }
+  .clip video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #5f5f5f; }
+  .clip figcaption { font-size: 13.5px; margin-top: 7px; }
+  .clips-note { font: 13.5px/1.5 var(--sans); color: var(--ink-3); margin: 16px 0 0; }
+  @media (max-width: 860px) { .clips { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .clips { grid-template-columns: 1fr; } }
+
   /* ---------- text ---------- */
   section { padding: 30px 0 10px; }
   h2 {
@@ -255,6 +265,7 @@
   <div class="wide">
     <a class="name" href="./">BVER</a>
     <nav aria-label="Page">
+      <a class="opt" href="#videos">Videos</a>
       <a class="opt" href="#method">Method</a>
       <a class="opt" href="#results">Results</a>
       <a href="demo.html">Interactive demo</a>
@@ -282,6 +293,38 @@
     <figcaption><b>BVER grows the curriculum from both ends of the task.</b> Intermediate starts <i>s<sub>i</sub></i> (<span class="c-start">blue</span>) grow from the target goal <i>g</i><sup>★</sup> and intermediate goals <i>g<sub>i</sub></i> (<span class="c-goal">green</span>) from the initial distribution <i>s</i><sub>0</sub>&nbsp;~&nbsp;<i>ρ</i><sub>0</sub>. One policy trains on both (white arrows), with sparse rewards and no demonstrations. Shown: box climbing (left), ring-on-peg transfer (top right), and a scanned terrain (bottom right).</figcaption>
   </figure>
 </div>
+
+<section id="videos" class="videos">
+  <div class="wide">
+    <div class="clips">
+    <figure class="clip">
+      <video src="img/videos/low_box.mp4?v=20260930" poster="img/videos/low_box.webp?v=20260930" width="1920" height="1080" muted loop playsinline controls preload="none" aria-label="Quadruped robot climbing from the ground onto a 0.4 metre box, several episodes in a row."></video>
+      <figcaption>Climbing onto a 0.4&nbsp;m box</figcaption>
+    </figure>
+    <figure class="clip">
+      <video src="img/videos/high_box.mp4?v=20260930" poster="img/videos/high_box.webp?v=20260930" width="1920" height="1080" muted loop playsinline controls preload="none" aria-label="Quadruped robot climbing from the ground onto a 0.7 metre box, several episodes in a row."></video>
+      <figcaption>Climbing onto a 0.7&nbsp;m box</figcaption>
+    </figure>
+    <figure class="clip">
+      <video src="img/videos/franka_hanoi_12_bver.mp4?v=20260930" poster="img/videos/franka_hanoi_12_bver.webp?v=20260930" width="1920" height="1080" muted loop playsinline controls preload="none" aria-label="Robot arm moving a ring from the bottom of one peg to the bottom of the other."></video>
+      <figcaption>Ring-on-peg transfer</figcaption>
+    </figure>
+    <figure class="clip">
+      <video src="img/videos/free_boulder_I.mp4?v=20260930" poster="img/videos/free_boulder_I.webp?v=20260930" width="1920" height="1080" muted loop playsinline controls preload="none" aria-label="Quadruped robot climbing a scanned boulder."></video>
+      <figcaption>Freestanding boulder I</figcaption>
+    </figure>
+    <figure class="clip">
+      <video src="img/videos/free_boulder_II.mp4?v=20260930" poster="img/videos/free_boulder_II.webp?v=20260930" width="1920" height="1080" muted loop playsinline controls preload="none" aria-label="Quadruped robot climbing a second scanned boulder from different starts."></video>
+      <figcaption>Freestanding boulder II</figcaption>
+    </figure>
+    <figure class="clip">
+      <video src="img/videos/rocky_ascent.mp4?v=20260930" poster="img/videos/rocky_ascent.webp?v=20260930" width="1920" height="1080" muted loop playsinline controls preload="none" aria-label="Quadruped robot climbing a steep scanned rocky slope toward a goal at the top."></video>
+      <figcaption>Rocky ascent</figcaption>
+    </figure>
+    </div>
+    <p class="clips-note">Policies trained with BVER in simulation, from sparse rewards and without demonstrations.</p>
+  </div>
+</section>
 
 <section id="summary">
   <div class="col">
@@ -610,6 +653,36 @@
     const warm = () => tabs.forEach((t) => { const p = new Image(); p.src = t.dataset.src; });
     if ("requestIdleCallback" in window) requestIdleCallback(warm); else setTimeout(warm, 1500);
   });
+
+  // Videos play only while on screen, so the page doesn't download all of them at load. A clip the
+  // viewer paused stays paused; with reduced motion nothing autoplays and the controls start it.
+  (function () {
+    const clips = document.querySelectorAll(".clip video");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) return;
+    const onScreen = new Set();
+    const userPaused = new WeakSet();
+    const start = (v) => { if (!userPaused.has(v) && !document.hidden) v.play().catch(() => {}); };
+    clips.forEach((v) => {
+      // Pauses from scrolling away or from the browser backgrounding the tab are not the viewer's.
+      v.addEventListener("pause", () => {
+        if (v.dataset.autoPausing) delete v.dataset.autoPausing;
+        else if (!document.hidden && onScreen.has(v)) userPaused.add(v);
+      });
+      v.addEventListener("play", () => userPaused.delete(v));
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(({ target: v, isIntersecting }) => {
+        if (isIntersecting) { onScreen.add(v); start(v); }
+        else {
+          onScreen.delete(v);
+          if (!v.paused) { v.dataset.autoPausing = "1"; v.pause(); }
+        }
+      });
+    }, { threshold: 0.35 });
+    clips.forEach((v) => io.observe(v));
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) onScreen.forEach(start); });
+  })();
 
   // Rocky-ascent training-progress slider.
   (function () {
